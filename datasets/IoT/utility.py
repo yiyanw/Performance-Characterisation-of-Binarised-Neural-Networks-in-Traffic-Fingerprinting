@@ -8,10 +8,12 @@ import _pickle as cPickle
 from numpy import load
 from sklearn.utils import shuffle
 
-CUR_PATH = os.getcwd()
+CUR_PATH = os.path.split(os.path.realpath(__file__))[0]
 print(CUR_PATH)
 
 dataset_dir = os.path.join(CUR_PATH, "dataset")
+
+
 # # Load data for non-defended dataset for CW setting
 def LoadDataIot():
     # X represents a sequence of traffic directions
@@ -42,6 +44,7 @@ def LoadDataIot():
 
     return X_train, y_train, X_valid, y_valid, X_test, y_test
 
+
 dirNames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
             '20']
 
@@ -55,15 +58,15 @@ def convert_csv_to_npy_binary():
 
     max_len = 0
     for dir in dirNames:
-        for fileName in os.listdir(os.path.join(dataset_dir, 'csv', dir).replace('\\', '/')):
-            className = fileName.split("??")[0]
+        for fileName in os.listdir(os.path.join(CUR_PATH, 'csv', dir).replace('\\', '/')):
+            className = fileName.split("__")[0]
             if className not in classDict.keys():
                 tally[className] = 0
                 classDict[className] = len(classSet)
                 classSet.add(className)
             tally[className] += 1
 
-            cur_sample = read_csv(os.path.join(dataset_dir, 'csv', dir, fileName).replace('\\', '/'))
+            cur_sample = read_csv(os.path.join(CUR_PATH, 'csv', dir, fileName).replace('\\', '/'))
             new = cur_sample['direction']
 
             if max_len < len(new):
@@ -82,12 +85,11 @@ def convert_csv_to_npy_binary():
 
     print(np.array(x).shape)
 
-    np.save(os.path.join(dataset_dir, "dataset", "x_data_all_v1.npy").replace('\\', '/'), x)
-    np.save(os.path.join(dataset_dir, "dataset", "y_data_all_v1.npy").replace('\\', '/'), y)
+    np.save(os.path.join(dataset_dir, "x_data_all_v1.npy").replace('\\', '/'), x)
+    np.save(os.path.join(dataset_dir, "y_data_all_v1.npy").replace('\\', '/'), y)
 
 
 def LoadDataIotBinary(class_num="all", version="v1"):
-    dataset_dir = os.path.join(CUR_PATH, "datasets", "IoT", "dataset").replace('\\', '/')
     class_num_str = str(class_num)
     X_train = np.load(os.path.join(dataset_dir, "x_data_" + class_num_str + "_" + version + ".npy").replace('\\', '/'))
     y_train = np.load(os.path.join(dataset_dir, "y_data_" + class_num_str + "_" + version + ".npy").replace('\\', '/'))

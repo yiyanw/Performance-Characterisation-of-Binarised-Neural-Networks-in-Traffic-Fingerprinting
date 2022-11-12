@@ -1,29 +1,16 @@
 import os
 import numpy as np
 
-import larq as lq
-import tensorflow.python.ops.variables
-from tensorflow.keras.optimizers import Adam
-from DC.utility import LoadDataDC
+# from tensorflow.keras.optimizers import Adam
+from keras.optimizers import Adam
 
-from tensorflow.python.keras.models import Model, load_model
-from tensorflow.python.keras.layers import Dense, Flatten
-from tensorflow.keras.layers import BatchNormalization
+from datasets.DC.utility import LoadDataDC
 from tensorflow.python.keras.utils import np_utils
-from tensorflow.python.keras.callbacks import ModelCheckpoint
-
-from NetworkParameters import NetworkParameters
-
-from tensorflow.python.keras.layers import Activation
-import tensorflow as tf
-
-import matplotlib.pyplot as plt
-
 from thermoencoder import ThermoEncoder
-# from TheromEncoder import TheromEncoder as TE
 from TheromEncoder import StandardTheromEncoder as STE, CustomizedTheromEncoder as CTE
 
-from yiyan_util import get_model, calculate_uncertainty, batch_run
+from common_util import batch_run
+
 np.random.seed(1337)  # for reproducibility
 
 ############################
@@ -31,30 +18,28 @@ np.random.seed(1337)  # for reproducibility
 
 modelDirectory = os.getcwd()
 
-parameters = NetworkParameters(modelDirectory)
-parameters.nb_epochs = 300
-parameters.batch_size = 128
-parameters.lr = 0.00005
-parameters.batch_scale_factor = 8
-parameters.decay = 0.0001
-use_thermo_encoding='True'
-fisrt_layer_binary=True
-dense_layer_quantized=False
+nb_epochs = 300
+batch_size = 128
+lr = 0.00005
+batch_scale_factor = 8
+decay = 0.0001
+use_thermo_encoding = 'True'
+fisrt_layer_binary = True
+dense_layer_quantized = False
 name_prefix = "DC_larq_"
 
 #
-parameters.binarisation_type = 'XNORNet'
+binarisation_type = 'XNORNet'
 
-parameters.lr *= parameters.batch_scale_factor
-parameters.batch_size *= parameters.batch_scale_factor
+lr *= batch_scale_factor
+batch_size *= batch_scale_factor
 
-print('Learning rate is: %f' % parameters.lr)
-print('Batch size is: %d' % parameters.batch_size)
+print('Learning rate is: %f' % lr)
+print('Batch size is: %d' % batch_size)
+
 
 def pre_process(use_thermo_encoding):
-
-
-    optimiser = Adam(learning_rate=parameters.lr, decay=parameters.decay)
+    optimiser = Adam(learning_rate=lr, decay=decay)
 
     ############################
     # Data
@@ -63,7 +48,7 @@ def pre_process(use_thermo_encoding):
 
     if use_thermo_encoding == 'standard':
         temp_data = np.concatenate((X_train, X_valid, X_test))
-        max_arr = [ np.max(temp_data) for i in range(len(temp_data[0])) ]
+        max_arr = [np.max(temp_data) for i in range(len(temp_data[0]))]
         te = ThermoEncoder()
         te.fit(np.concatenate((temp_data, np.array([max_arr]))))
         # temp_data = np.reshape(np.concatenate((X_train, X_valid, X_test)),(-1))
@@ -71,7 +56,7 @@ def pre_process(use_thermo_encoding):
         # te.fit(temp_data)
         channel_num = 8
     elif use_thermo_encoding == 'customized':
-        temp_data = np.reshape(np.concatenate((X_train, X_valid, X_test)),(-1))
+        temp_data = np.reshape(np.concatenate((X_train, X_valid, X_test)), (-1))
         te = CTE(debug_mode=True)
         te.fit(temp_data)
         channel_num = len(te.thresholds)
@@ -98,7 +83,6 @@ def pre_process(use_thermo_encoding):
         X_valid = X_valid.reshape(X_valid.shape[0], -1, 1)
         X_test = X_test.reshape(X_test.shape[0], -1, 1)
 
-
     y_train = np.squeeze(y_train)
     y_test = np.squeeze(y_test)
     y_valid = np.squeeze(y_valid)
@@ -123,23 +107,15 @@ def pre_process(use_thermo_encoding):
     y_train_cat = np_utils.to_categorical(y_train, nb_classes + 1)
     y_valid_cat = np_utils.to_categorical(y_valid, nb_classes + 1)
 
-    return X_train, y_train_cat, X_test, y_test_cat, X_valid, y_valid_cat, \
-                                        input_shape, nb_classes, parameters, optimiser
-
+    return X_train, y_train_cat, X_test, y_test_cat, X_valid, y_valid_cat, input_shape, nb_classes, \
+           batch_size, nb_epochs, optimiser
 
 
 # batch test run
-batch_run(pre_process,name_prefix, basic_combs=True, test_first_layer_encoding=True)
+batch_run(pre_process, name_prefix, basic_combs=True, test_first_layer_encoding=True)
 
 # show_info(model, "images/DC/", 'quant_conv2d', print_result=True)
 # show_info(model, "images/DC/", 'quant_conv2d_1', binarize_weights=True)
 # show_info(model, "images/DC/", 'quant_conv2d_2', binarize_weights=True)
 # show_info(model, "images/DC/", 'flatten', result_type=('output'), print_result=False)
 # show_info(model, "images/DC/", 'quant_dense')
-
-
-
-
-
-
-
