@@ -1,3 +1,5 @@
+import os
+
 import larq as lq
 import numpy as np
 
@@ -254,3 +256,10 @@ def plot_key_value(d_o, name, print_xy=False, xlim_val=(-5, 5)):
         print(x)
         print("y")
         print(y)
+
+
+def create_saved_models_dir():
+    CUR_PATH = os.path.split(os.path.realpath(__file__))[0]
+    print(CUR_PATH)
+    if not os.path.exists(os.path.join(CUR_PATH, 'savedModels').replace('\\', '/')):
+        os.mkdir(os.path.join(CUR_PATH, 'savedModels'))

@@ -13,6 +13,7 @@ print(CUR_PATH)
 
 
 def convert_npz_to_dataset():
+    print("convert npz to dataset")
     tally = dict()
     classDict = dict()
     classSet = set()
@@ -50,9 +51,10 @@ def convert_npz_to_dataset():
     np.save(os.path.join(CUR_PATH, 'dataset', "y_data.npy").replace('\\', '/'), y)
 
 
+def load_data_awf_binary():
+    if not os.path.exists(os.path.join(CUR_PATH, 'dataset').replace('\\', '/')):
+        convert_npz_to_dataset()
 
-
-def LoadDataNoDefCW():
     print(os.path.join(CUR_PATH, "dataset", "dataset.zip").replace('\\', '/'))
     try:
         with zipfile.ZipFile(os.path.join(CUR_PATH, "dataset", "dataset.zip").replace('\\', '/'),
@@ -89,7 +91,3 @@ def LoadDataNoDefCW():
     print("y: Testing data's shape : ", y_test.shape)
 
     return X_train, y_train, X_valid, y_valid, X_test, y_test
-
-
-# convert_npz_to_dataset()
-LoadDataNoDefCW()

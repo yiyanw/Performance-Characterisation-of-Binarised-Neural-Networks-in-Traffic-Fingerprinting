@@ -5,8 +5,8 @@ import numpy as np
 from keras.optimizers import Adam
 from tensorflow.python.keras.utils import np_utils
 from TheromEncoder import StandardTheromEncoder as STE, CustomizedTheromEncoder as CTE
-from datasets.IoT.utility import LoadDataIotBinary
-from common_util import batch_run
+from datasets.IoT.utility import load_data_iot_binary
+from common_util import batch_run, create_saved_models_dir
 
 np.random.seed(1337)  # for reproducibility
 
@@ -24,8 +24,6 @@ use_thermo_encoding = 'False'  # do not require therometer encoding
 fisrt_layer_binary = True
 dense_layer_quantized = False
 name_prefix = "IOT_larq_"
-#
-binarisation_type = 'XNORNet'
 
 lr *= batch_scale_factor
 batch_size *= batch_scale_factor
@@ -33,13 +31,14 @@ batch_size *= batch_scale_factor
 print('Learning rate is: %f' % lr)
 print('Batch size is: %d' % batch_size)
 
+create_saved_models_dir()
 
 ############################
 # Data
 
 def pre_process(use_thermo_encoding):
     optimiser = Adam(learning_rate=lr, decay=decay)
-    X_train, y_train, X_valid, y_valid, X_test, y_test = LoadDataIotBinary()
+    X_train, y_train, X_valid, y_valid, X_test, y_test = load_data_iot_binary()
     if use_thermo_encoding == 'standard':
         temp_data = np.reshape(np.concatenate((X_train, X_valid, X_test)), (-1))
         te = STE(encoding_len=16)

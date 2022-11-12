@@ -3,10 +3,10 @@ import numpy as np
 
 # from tensorflow.keras.optimizers import Adam
 from keras.optimizers import Adam
-from datasets.SETAPP.utility import LoadData
+from datasets.SETAPP.utility import load_data_setapp_numeric
 from tensorflow.python.keras.utils import np_utils
 from TheromEncoder import StandardTheromEncoder as STE, CustomizedTheromEncoder as CTE
-from common_util import batch_run
+from common_util import batch_run, create_saved_models_dir
 
 np.random.seed(1337)  # for reproducibility
 
@@ -23,8 +23,6 @@ use_thermo_encoding = 'False'
 fisrt_layer_binary = False
 dense_layer_quantized = True
 name_prefix = "SETAPP_larq_"
-#
-parameters.binarisation_type = 'XNORNet'
 
 lr *= batch_scale_factor
 batch_size *= batch_scale_factor
@@ -32,11 +30,12 @@ batch_size *= batch_scale_factor
 print('Learning rate is: %f' % lr)
 print('Batch size is: %d' % batch_size)
 
+create_saved_models_dir()
 
 def pre_process(use_thermo_encoding):
     optimiser = Adam(learning_rate=lr, decay=decay)
 
-    X_train, y_train, X_valid, y_valid, X_test, y_test = LoadData()
+    X_train, y_train, X_valid, y_valid, X_test, y_test = load_data_setapp_numeric()
 
     channel_num = 8
     te = None

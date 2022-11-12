@@ -3,9 +3,10 @@ import numpy as np
 # from tensorflow.python.keras.optimizers import Adam
 from keras.optimizers import Adam
 
-from datasets.AWF.utility import LoadDataNoDefCW
+from datasets.AWF.utility import load_data_awf_binary
 from tensorflow.python.keras.utils import np_utils
-from common_util import batch_run
+from common_util import batch_run, create_saved_models_dir
+
 np.random.seed(1337)  # for reproducibility
 
 ############################
@@ -23,22 +24,20 @@ fisrt_layer_binary=True
 dense_layer_quantized=False
 name_prefix = "AWF_larq_"
 
-
-binarisation_type = 'XNORNet'
-
 lr *= batch_scale_factor
 batch_size *= batch_scale_factor
 
 print('Learning rate is: %f' % lr)
 print('Batch size is: %d' % batch_size)
 
+create_saved_models_dir()
 
 def pre_process(use_thermo_encoding):
     optimiser = Adam(learning_rate=lr, decay=decay)
 
     ############################
     # Data
-    X_train, y_train, X_valid, y_valid, X_test, y_test = LoadDataNoDefCW()
+    X_train, y_train, X_valid, y_valid, X_test, y_test = load_data_awf_binary()
 
     X_train = X_train.reshape(X_train.shape[0], 50, -1)
     X_valid = X_valid.reshape(X_valid.shape[0], 50, -1)

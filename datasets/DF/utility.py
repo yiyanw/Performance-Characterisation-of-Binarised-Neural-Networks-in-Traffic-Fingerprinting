@@ -8,7 +8,7 @@ print(CUR_PATH)
 
 
 # Load data for non-defended dataset for CW setting
-def LoadDataNoDefCW():
+def load_data_df_binary():
     print("Loading non-defended dataset for closed-world scenario")
     # Point to the directory storing data
     dataset_dir = os.path.join(CUR_PATH, "dataset")

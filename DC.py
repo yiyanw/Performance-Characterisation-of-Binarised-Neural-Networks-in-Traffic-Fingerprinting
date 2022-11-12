@@ -4,12 +4,12 @@ import numpy as np
 # from tensorflow.keras.optimizers import Adam
 from keras.optimizers import Adam
 
-from datasets.DC.utility import LoadDataDC
+from datasets.DC.utility import load_data_dc_numeric
 from tensorflow.python.keras.utils import np_utils
 from thermoencoder import ThermoEncoder
 from TheromEncoder import StandardTheromEncoder as STE, CustomizedTheromEncoder as CTE
 
-from common_util import batch_run
+from common_util import batch_run, create_saved_models_dir
 
 np.random.seed(1337)  # for reproducibility
 
@@ -28,32 +28,26 @@ fisrt_layer_binary = True
 dense_layer_quantized = False
 name_prefix = "DC_larq_"
 
-#
-binarisation_type = 'XNORNet'
-
 lr *= batch_scale_factor
 batch_size *= batch_scale_factor
 
 print('Learning rate is: %f' % lr)
 print('Batch size is: %d' % batch_size)
 
+create_saved_models_dir()
 
 def pre_process(use_thermo_encoding):
     optimiser = Adam(learning_rate=lr, decay=decay)
 
     ############################
     # Data
-    X_train, y_train, X_valid, y_valid, X_test, y_test = LoadDataDC()
+    X_train, y_train, X_valid, y_valid, X_test, y_test = load_data_dc_numeric()
     #
 
     if use_thermo_encoding == 'standard':
-        temp_data = np.concatenate((X_train, X_valid, X_test))
-        max_arr = [np.max(temp_data) for i in range(len(temp_data[0]))]
-        te = ThermoEncoder()
-        te.fit(np.concatenate((temp_data, np.array([max_arr]))))
-        # temp_data = np.reshape(np.concatenate((X_train, X_valid, X_test)),(-1))
-        # te = STE()
-        # te.fit(temp_data)
+        temp_data = np.reshape(np.concatenate((X_train, X_valid, X_test)),(-1))
+        te = STE()
+        te.fit(temp_data)
         channel_num = 8
     elif use_thermo_encoding == 'customized':
         temp_data = np.reshape(np.concatenate((X_train, X_valid, X_test)), (-1))

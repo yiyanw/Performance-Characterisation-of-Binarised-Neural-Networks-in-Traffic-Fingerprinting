@@ -1,10 +1,10 @@
 import os
 import numpy as np
 from keras.optimizers import Adam
-from datasets.DF.utility import LoadDataNoDefCW
+from datasets.DF.utility import load_data_df_binary
 from tensorflow.python.keras.utils import np_utils
 from TheromEncoder import StandardTheromEncoder as STE, CustomizedTheromEncoder as CTE
-from common_util import batch_run, bit_to_int
+from common_util import batch_run, bit_to_int, create_saved_models_dir
 
 np.random.seed(1337)  # for reproducibility
 
@@ -21,8 +21,6 @@ use_thermo_encoding = 'False'  # do not require therometer encoding
 fisrt_layer_binary = False
 dense_layer_quantized = False
 name_prefix = "DF_larq_"
-#
-binarisation_type = 'XNORNet'
 
 lr *= batch_scale_factor
 batch_size *= batch_scale_factor
@@ -30,13 +28,14 @@ batch_size *= batch_scale_factor
 print('Learning rate is: %f' % lr)
 print('Batch size is: %d' % batch_size)
 
+create_saved_models_dir()
 
 def pre_process(use_thermo_encoding):
     optimiser = Adam(learning_rate=lr, decay=decay)
     bit_to_int_test = True
     ############################
     # Data
-    X_train, y_train, X_valid, y_valid, X_test, y_test = LoadDataNoDefCW()
+    X_train, y_train, X_valid, y_valid, X_test, y_test = load_data_df_binary()
 
     if bit_to_int_test and (use_thermo_encoding == 'standard' or use_thermo_encoding == 'customized'):
         X_train = bit_to_int(X_train, 8)

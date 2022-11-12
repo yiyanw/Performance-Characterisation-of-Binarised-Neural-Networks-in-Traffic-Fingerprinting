@@ -6,7 +6,7 @@ print(CUR_PATH)
 
 
 # # Load data for non-defended dataset for CW setting
-def LoadDataDC():
+def load_data_dc_numeric():
     print("Loading non-defended dataset for closed-world scenario")
     # Point to the directory storing data
     dataset_dir = os.path.join(CUR_PATH, "dataset")
