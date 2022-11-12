@@ -19,9 +19,9 @@ batch_size = 128
 lr = 0.00005
 batch_scale_factor = 8
 decay = 0.0001
-use_thermo_encoding='False' # do not require therometer encoding
-fisrt_layer_binary=True
-dense_layer_quantized=False
+use_thermo_encoding = 'False'  # do not require therometer encoding
+fisrt_layer_binary = True
+dense_layer_quantized = False
 name_prefix = "AWF_larq_"
 
 lr *= batch_scale_factor
@@ -31,6 +31,7 @@ print('Learning rate is: %f' % lr)
 print('Batch size is: %d' % batch_size)
 
 create_saved_models_dir()
+
 
 def pre_process(use_thermo_encoding):
     optimiser = Adam(learning_rate=lr, decay=decay)
@@ -72,5 +73,4 @@ def pre_process(use_thermo_encoding):
 
 
 # batch test run
-batch_run(pre_process,name_prefix, basic_combs=True, test_first_layer_encoding=False, 
-    customize_configs=[])
+batch_run(pre_process, name_prefix, basic_combs=True, test_first_layer_encoding=False, customize_configs=[])

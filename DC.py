@@ -106,7 +106,7 @@ def pre_process(use_thermo_encoding):
 
 
 # batch test run
-batch_run(pre_process, name_prefix, basic_combs=True, test_first_layer_encoding=True)
+batch_run(pre_process, name_prefix, basic_combs=True, test_first_layer_encoding=True, customize_configs=[])
 
 # show_info(model, "images/DC/", 'quant_conv2d', print_result=True)
 # show_info(model, "images/DC/", 'quant_conv2d_1', binarize_weights=True)

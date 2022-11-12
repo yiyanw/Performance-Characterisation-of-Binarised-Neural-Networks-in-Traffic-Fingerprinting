@@ -102,4 +102,4 @@ def pre_process(use_thermo_encoding):
 
 
 # batch test run
-batch_run(pre_process, name_prefix, basic_combs=True, test_first_layer_encoding=False)
+batch_run(pre_process, name_prefix, basic_combs=True, test_first_layer_encoding=False, customize_configs=[])
