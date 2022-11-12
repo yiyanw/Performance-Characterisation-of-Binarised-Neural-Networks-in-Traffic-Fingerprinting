@@ -1,4 +1,6 @@
 import os
+import platform
+
 from pandas import read_csv
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -26,7 +28,12 @@ def convert_csv_to_npy_binary():
     max_len = 0
     for dir in dirNames:
         for fileName in os.listdir(os.path.join(CUR_PATH, 'csv', dir).replace('\\', '/')):
-            className = fileName.split("__")[0]
+            sysstr = platform.system()
+            if sysstr == "Windows":
+                className = fileName.split("__")[0]
+            else:
+                className = fileName.split("??")[0]
+
             if className not in classDict.keys():
                 tally[className] = 0
                 classDict[className] = len(classSet)
@@ -58,7 +65,6 @@ def convert_csv_to_npy_binary():
 
 
 def load_data_iot_binary(class_num="all", version="v1"):
-
     if not os.path.exists(dataset_dir):
         if not os.path.exists(os.path.join(CUR_PATH, "csv").replace('\\', '/')):
             unzip_file()
@@ -88,5 +94,5 @@ def unzip_file():
     zip_file = zipfile.ZipFile(file_name)
     os.mkdir(os.path.join(CUR_PATH, "csv").replace("\\", '/'))
     for names in zip_file.namelist():
-        zip_file.extract(names, "csv")
+        zip_file.extract(names, os.path.join(CUR_PATH, "csv").replace("\\", '/'))
     zip_file.close()
