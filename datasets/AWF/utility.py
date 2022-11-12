@@ -3,11 +3,53 @@ import pickle
 import numpy as np
 from numpy import load
 import zipfile
+
+from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
 NB_CLASSES = 200
 CUR_PATH = os.path.split(os.path.realpath(__file__))[0]
 print(CUR_PATH)
+
+
+def convert_npz_to_dataset():
+    tally = dict()
+    classDict = dict()
+    classSet = set()
+    x = list()
+    y = list()
+
+    npzfile = np.load(os.path.join(CUR_PATH, "tor_200w_2500tr.npz").replace('\\', '/'), allow_pickle=True)
+    data = npzfile["data"]
+    labels = npzfile["labels"]
+    npzfile.close()
+
+    print(data)
+    print(labels)
+    for i in range(len(labels)):
+        cur_x = data[i]
+        cur_y = labels[i]
+        if cur_y not in classDict.keys():
+            tally[cur_y] = 0
+            classDict[cur_y] = len(classSet)
+            classSet.add(cur_y)
+        tally[cur_y] += 1
+
+        x.append(cur_x)
+        y.append(classDict[cur_y])
+
+    for i in range(len(x)):
+        x[i] = x[i][:1500]
+        if len(x[i]) < 1500:
+            x[i] = np.concatenate((x[i], np.array([0 for i in range(1500 - len(x[i]))])))
+
+    print(np.array(x).shape)
+
+    os.mkdir(os.path.join(CUR_PATH, 'dataset').replace('\\', '/'))
+    np.save(os.path.join(CUR_PATH, 'dataset', "x_data.npy").replace('\\', '/'), x)
+    np.save(os.path.join(CUR_PATH, 'dataset', "y_data.npy").replace('\\', '/'), y)
+
+
 
 
 def LoadDataNoDefCW():
@@ -28,22 +70,15 @@ def LoadDataNoDefCW():
     # y represents a sequence of corresponding label (website's label)
 
     # Load training data
+    X_train = np.load(os.path.join(dataset_dir, "x_data.npy").replace('\\', '/'))
+    y_train = np.load(os.path.join(dataset_dir, "y_data.npy").replace('\\', '/'))
 
-    X_train = load(os.path.join(dataset_dir, 'X_train.npy').replace('\\', '/'))
-    X_train = X_train[:, 0:1500]
-    y_train = load(os.path.join(dataset_dir, 'y_train.npy').replace('\\', '/'))
+    # partial use for this dataset
+    X_train, _, y_train, _ = train_test_split(X_train, y_train, test_size=0.64, random_state=42)
 
-    # Load validation data
-    X_valid = load(os.path.join(dataset_dir, 'X_valid.npy').replace('\\', '/'))
-    X_valid = X_valid[:, 0:1500]
-    y_valid = load(os.path.join(dataset_dir, 'y_valid.npy').replace('\\', '/'))
-    X_valid, y_valid = shuffle(X_valid, y_valid)
-
-    # Load testing data
-    X_test = load(os.path.join(dataset_dir, 'X_test.npy').replace('\\', '/'))
-    X_test = X_test[:, 0:1500]
-    y_test = load(os.path.join(dataset_dir, 'y_test.npy').replace('\\', '/'))
-    X_test, y_test = shuffle(X_test, y_test)
+    # split to train, validate, test sets
+    X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.44, random_state=42)
+    X_test, X_valid, y_test, y_valid = train_test_split(X_test, y_test, test_size=0.5, random_state=42)
 
     print("Data dimensions:")
     print("X: Training data's shape : ", X_train.shape)
@@ -54,3 +89,7 @@ def LoadDataNoDefCW():
     print("y: Testing data's shape : ", y_test.shape)
 
     return X_train, y_train, X_valid, y_valid, X_test, y_test
+
+
+# convert_npz_to_dataset()
+LoadDataNoDefCW()
